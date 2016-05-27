@@ -13,6 +13,7 @@ class mysuggestions extends REST_Controller {
     {
         parent::__construct();
         $this->load->model('Suggestions_model');
+        $this->load->model('Jwt_model');
     }
     
     public function index_options()
@@ -22,8 +23,11 @@ class mysuggestions extends REST_Controller {
     
     public function index_get()
     {
-        $schoolID = $this->get('id');
-        $mySuggestions = $this->Suggestions_model->getMySuggestions($schoolID);
+        // AUTHENTICATE AND VALIDATE JWT
+        (!$this->Jwt_model->authenticate(getallheaders()) ? $this->response($this->Jwt_model->error,403) : false );
+        
+        $user = $this->Jwt_model->user;
+        $mySuggestions = $this->Suggestions_model->getMySuggestions($user['sid']);
         $this->response($mySuggestions, 200);
     }
     

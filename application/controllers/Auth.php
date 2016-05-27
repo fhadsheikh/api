@@ -12,6 +12,7 @@ class Auth extends REST_Controller {
 
     public function __construct(){
         parent::__construct();
+        $this->load->model('Helpdesk_model');
     }
     
     public function index_options()
@@ -29,6 +30,15 @@ class Auth extends REST_Controller {
         
         $secret = 'fhadsheikh';
         
+        $username = $this->post('username');
+        $password = $this->post('password');
+        
+        $user = $this->Helpdesk_model->authenticate($username,$password);
+        
+        if(!$user){
+            $this->response('Invalid Credentials', 403);
+        }
+        
         $now = time();
         $expire = strtotime('tomorrow');
         
@@ -45,6 +55,7 @@ class Auth extends REST_Controller {
             'exp'=>$expire,
             'data'=>array(
                 'name'=>'Fhad Sheikh',
+                'sid' => 2,
                 'permissions'=> array('read','admin')
             )
         );
