@@ -4,6 +4,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Helpdesk_model extends CI_Model {
     
+    public $user;
+    
     public function __construct(){
         parent::__construct();
     }
@@ -31,13 +33,13 @@ class Helpdesk_model extends CI_Model {
           ),
         ));
 
-        $response = curl_exec($curl);
+        $this->user = curl_exec($curl);
         $err = curl_error($curl);
         
         if(curl_getinfo($curl)['http_code'] != 200){
             return false;
         } else {
-            return $response;
+            return $this->user;
         }
         
         curl_close($curl);

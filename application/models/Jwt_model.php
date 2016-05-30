@@ -12,6 +12,8 @@ class Jwt_model extends CI_Model {
     
     public $error;
     
+    public $user;
+    
     public function __construct()
     {
         parent::__construct();

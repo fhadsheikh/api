@@ -9,6 +9,7 @@ header('Access-Control-Allow-Headers: accept, authorization,x-requested-with');
 
 
 class Auth extends REST_Controller {
+    
 
     public function __construct(){
         parent::__construct();

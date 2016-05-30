@@ -12,10 +12,10 @@ class Suggestions_model extends CI_Model {
     
     public function getSuggestions()
     {
-        $this->db->select('suggestions.id,title,author,likes,name');
+        $this->db->select('suggestions.id,title,sid,likes,name');
         $this->db->where('status',1);
         $this->db->from('suggestions');
-        $this->db->join('schools','schools.id = suggestions.author');
+        $this->db->join('schools','schools.id = suggestions.sid');
         $query = $this->db->get();
         
         return $query->result();
@@ -26,7 +26,7 @@ class Suggestions_model extends CI_Model {
         $this->db->select('*');
         $this->db->where('suggestions.id',$id);
         $this->db->from('suggestions');
-        $this->db->join('schools','schools.id = suggestions.author');
+        $this->db->join('schools','schools.id = suggestions.sid');
         $query = $this->db->get();
         
         return $query->row();
@@ -34,10 +34,10 @@ class Suggestions_model extends CI_Model {
     
     public function getMySuggestions($schoolID)
     {
-        $this->db->select('suggestions.id,title,author,likes,name');
-        $this->db->where('author',$schoolID);
+        $this->db->select('suggestions.id,title,sid,likes,name');
+        $this->db->where('sid',$schoolID);
         $this->db->from('suggestions');
-        $this->db->join('schools','schools.id = suggestions.author');
+        $this->db->join('schools','schools.id = suggestions.sid');
         
         $query = $this->db->get();
         
