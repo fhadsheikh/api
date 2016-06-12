@@ -39,7 +39,7 @@ class Helpdesk_model extends CI_Model {
         if(curl_getinfo($curl)['http_code'] != 200){
             return false;
         } else {
-            return $this->user;
+            return json_decode($this->user);
         }
         
         curl_close($curl);

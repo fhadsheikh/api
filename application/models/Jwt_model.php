@@ -22,26 +22,34 @@ class Jwt_model extends CI_Model {
     public function authenticate($headers)
     {
         $this->jwtToken = $this->getJwtFromHeader($headers);
-        
-        if($this->jwtToken === null){
-            return $this->error = 'No Authorization header Found';
+                
+        if(!$this->jwtToken || $this->jwtToken == null){
+            $this->error = 'No Authorization header Found';
+            return false;
         }
         
         $this->jwtArray = $this->parseJwt($this->jwtToken);
         
         if(!$this->jwtArray){
-            return $this->error = 'Authorization header was not formatted correctly';
+            $this->error = 'Authorization header was not formatted correctly';
+            return false;
         }
         
-        return $this->validateJwt($this->jwtArray);
+        if($this->validateJwt($this->jwtArray)){
+            return $this->validateJwt($this->jwtArray);
+        } else {
+            $this->error = 'Authorization token has been altered';
+            return false;
+        }
     }
     
     public function getJwtFromHeader($headers)
     {
         foreach($headers as $key => $header){
+                    
             if($key == 'Authorization'){
                 return $header;
-            }
+            } 
         }
     }
     

@@ -30,6 +30,13 @@ class mysuggestions extends REST_Controller {
         $user = $this->Jwt_model->user;
         
         $mySuggestions = $this->Suggestions_model->getMySuggestions($user['sid']);
+        foreach($mySuggestions as $key => $suggestion)
+        {
+            $suggestion->votes = $this->Suggestions_model->getVotes($suggestion->id);
+            $suggestion->hasVoted = $this->Suggestions_model->hasVoted($user['sid'],$suggestion->id);
+        }
         $this->response($mySuggestions, 200);
     }
+    
+    
 }

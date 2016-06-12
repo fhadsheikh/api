@@ -14,31 +14,40 @@ class Auth extends REST_Controller {
     public function __construct(){
         parent::__construct();
         $this->load->model('Helpdesk_model');
+        $this->load->model('User_model');
     }
     
     public function index_options()
     {
         $this->response(200);
     }
-    
-    // Get logged in user (used for checking login status and permissions)
-    public function index_get(){
-        echo "hello";
-    }
-    
+        
     // Log In
-    public function index_post(){
+    public function index_post()
+    {
         
         $secret = 'fhadsheikh';
         
         $username = $this->post('username');
         $password = $this->post('password');
         
+        if($username == null || $password == null){
+            $this->response('No Credentials Supplied', 403);
+        }
+        
         $user = $this->Helpdesk_model->authenticate($username,$password);
         
         if(!$user){
             $this->response('Invalid Credentials', 403);
         }
+        
+        $dbUser = $this->User_model->getUser($user->UserID);        
+        
+        if(!$dbUser){
+            $this->response('User not registered', 403);
+        }
+        
+        $dbUserPermission = $this->User_model->getPermissions($dbUser->id);
         
         $now = time();
         $expire = strtotime('tomorrow');
@@ -55,9 +64,11 @@ class Auth extends REST_Controller {
             'nbf'=>$now,
             'exp'=>$expire,
             'data'=>array(
-                'name'=>'Fhad Sheikh',
-                'sid' => 2,
-                'permissions'=> array('read','admin')
+                'name'=>$dbUser->firstname.' '.$dbUser->lastname,
+                'firstname'=>$dbUser->firstname,
+                'sid' => $dbUser->sid,
+                'pid' => $dbUser->id,
+                'permissions'=> $dbUserPermission
             )
         );
         
@@ -71,9 +82,33 @@ class Auth extends REST_Controller {
         $this->response($jwt,200);
     }
     
-    // Log out
-    public function index_delete(){
-
+    public function user_options()
+    {
+        $this->response(200);
     }
+    
+    // Create user
+    public function user_post()
+    {
+        
+        $username = $this->post('username');
+        $password = $this->post('password');
+        
+        $user = $this->Helpdesk_model->authenticate($username,$password);
+        
+        $helpdesk_id = $user->UserID;
+        $firstname = $this->post('firstname');
+        $lastname = $this->post('lastname');
+        $sid = $user->CompanyId;
+        $title = $this->post('title');
+        $email = $this->post('email');
+        
+        $this->User_model->createUser($helpdesk_id,$firstname,$lastname,$title,$sid,$email);
+        
+        $this->response(201);
+        
+    }
+    
+    
     
 }
