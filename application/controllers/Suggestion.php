@@ -31,6 +31,9 @@ class suggestion extends REST_Controller {
         $suggestionID = $this->get('id');
         
         $suggestion = $this->Suggestions_model->getSuggestion($suggestionID);
+        
+        if(!$suggestion){$this->response('Suggestion not found',404);}
+        
         $suggestion->id = $suggestionID;
         $suggestion->hasVoted = $this->Suggestions_model->hasVoted($sid,$suggestionID);
         $suggestion->votes = $this->Suggestions_model->getVotes($suggestionID);
@@ -48,12 +51,21 @@ class suggestion extends REST_Controller {
         $sid = $user['sid'];
         $pid = $user['pid'];
         
-        $this->Suggestions_model->createSuggestion(
+        $insertID = $this->Suggestions_model->createSuggestion(
             $title,
             $summary,
             $sid,
             $pid
         );
+                
+        $data = array(
+            'pid'=>18,
+            'message'=>'Suggestion submitted',
+            'suggestion_id'=>$insertID,
+            'techsonly'=>false
+        );
+        
+        $test = $this->Suggestions_model->submitMessage($data);
         
         $this->response('Suggestion was created', 200);
     }
@@ -89,6 +101,18 @@ class suggestion extends REST_Controller {
         (!$this->Jwt_model->authenticate(getallheaders()) ? $this->response($this->Jwt_model->error,403) : false );
 
         $suggestionID =  $this->get('id');
+        
+        $suggestion = $this->Suggestions_model->getSuggestion($suggestionID);
+        
+        $user = $this->Jwt_model->user;
+        
+        if($user['permissions']['admin'] == 0) {
+            if($suggestion->sid != $user['sid'])
+            {
+                $this->response(403);
+            }
+        }
+        
 
         $messages = $this->Suggestions_model->getMessages($suggestionID);
         
@@ -177,7 +201,6 @@ class suggestion extends REST_Controller {
     
     public function checkapproved_get()
     {
-        
         (!$this->Jwt_model->authenticate(getallheaders()) ? $this->response($this->Jwt_model->error,403) : false );
 
         $id = $this->get('id');
@@ -188,6 +211,11 @@ class suggestion extends REST_Controller {
         }
         
         $suggestion = $this->Suggestions_model->getSuggestion($id);
+        
+        if(!$suggestion)
+        {
+            $this->response('Suggestion not found', 404);
+        }
         
         if($suggestion->status == 1)
         {

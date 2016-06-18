@@ -29,7 +29,7 @@ class suggestions extends REST_Controller {
         
         $user = $this->Jwt_model->user;
         
-        $suggestions = $this->Suggestions_model->getSuggestions();
+        $suggestions = $this->Suggestions_model->getApprovedSuggestions();
         
         foreach($suggestions as $key => $suggestion)
         {

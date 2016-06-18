@@ -10,12 +10,24 @@ class Suggestions_model extends CI_Model {
         $this->load->database();
     }
     
-    public function getSuggestions()
+    public function getApprovedSuggestions()
     {
-        $this->db->select('suggestions.id,title,sid,name,status,submissiondate');
+        $this->db->select('suggestions.id,title,sid,name,status,statusname,submissiondate');
         $this->db->where('status',1);
         $this->db->from('suggestions');
         $this->db->join('schools','schools.id = suggestions.sid');
+        $this->db->join('status','status.id = suggestions.status');
+        $query = $this->db->get();
+        
+        return $query->result();
+    }
+    
+    public function getAllSuggestions()
+    {
+        $this->db->select('suggestions.id,title,sid,name,status,statusname,submissiondate');
+        $this->db->from('suggestions');
+        $this->db->join('schools','schools.id = suggestions.sid');
+        $this->db->join('status','status.id = suggestions.status');
         $query = $this->db->get();
         
         return $query->result();
@@ -30,7 +42,7 @@ class Suggestions_model extends CI_Model {
         $query = $this->db->get();
         
         return $query->row();
-    }
+    }    
     
     public function getMySuggestions($schoolID)
     {
@@ -46,14 +58,19 @@ class Suggestions_model extends CI_Model {
     
     public function createSuggestion($title,$summary,$sid,$pid)
     {
+        $insertID = $this->db->insert_id();
+        
         $data = array(
             'title'=>$title,
             'summary'=>$summary,
             'sid'=>$sid,
-            'pid'=>$pid
+            'pid'=>$pid,
+            'insertID'=>$insertID
         );
         
         $this->db->insert('suggestions',$data);
+        
+        return $insertID;
     }
     
     public function getVotes($suggestionID)
