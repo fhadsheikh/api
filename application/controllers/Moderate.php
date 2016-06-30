@@ -14,6 +14,7 @@ class moderate extends REST_Controller {
         parent::__construct();
         $this->load->model('Suggestions_model');
         $this->load->model('Jwt_model');
+        $this->load->library('email');
     }
 
     public function suggestions_options(){
@@ -65,6 +66,20 @@ class moderate extends REST_Controller {
 
         $this->response($test, 200);
 
+    }
+    
+    public function test_post(){
+        
+        $this->email->from('support@clockworks.ca');
+        $this->email->to('azim@clockworks.ca');
+        $this->email->subject('Test Email from Angular');
+        $this->email->message('Hello son, how are you?');
+        $this->email->send();
+        
+        print_r($this->email);
+        
+//        $this->response($this->email,200);
+        
     }
 
 

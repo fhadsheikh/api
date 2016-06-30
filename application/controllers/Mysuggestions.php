@@ -6,6 +6,7 @@ require APPPATH . '/libraries/REST_Controller.php';
 
 header('Access-Control-Allow-Origin: *');  
 header('Access-Control-Allow-Headers: accept, authorization,x-requested-with'); 
+header('Access-Control-Allow-Methods: PUT'); 
 
 class mysuggestions extends REST_Controller {
     
@@ -36,6 +37,28 @@ class mysuggestions extends REST_Controller {
             $suggestion->hasVoted = $this->Suggestions_model->hasVoted($user['sid'],$suggestion->id);
         }
         $this->response($mySuggestions, 200);
+    }
+    
+    public function index_put()
+    {
+        
+        // AUTHENTICATE AND VALIDATE JWT
+        (!$this->Jwt_model->authenticate(getallheaders()) ? $this->response($this->Jwt_model->error,403) : false );
+        
+        $user = $this->Jwt_model->user;
+        
+        $id = $this->put('id');
+        $summary = $this->put('summary');
+        
+        $suggestion = $this->Suggestions_model->getSuggestion($id);
+        
+        if($suggestion->sid != $user['sid']){
+            $this->response(403);
+        }
+        
+        $this->Suggestions_model->updateSuggestion($id,$summary);
+        
+        $this->response(200);
     }
     
     

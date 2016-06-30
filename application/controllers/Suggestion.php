@@ -14,6 +14,8 @@ class suggestion extends REST_Controller {
         parent::__construct();
         $this->load->model('Suggestions_model');
         $this->load->model('Jwt_model');
+        $this->load->model('Credit_model');
+        $this->load->model('Credits_model');
 
     }
 
@@ -84,8 +86,17 @@ class suggestion extends REST_Controller {
         $sid = $user['sid'];
         $pid = $user['pid'];
         $suggestionID = $this->post('id');
+        
+        $credits = $this->Credits_model->getCredits($sid);
+        
+        if($credits < 1){
+            $this->response('not_enough_credits', 200);
+        }
 
         $votes = $this->Suggestions_model->submitVote($sid,$pid,$suggestionID);
+        
+        $this->Credit_model->redeem($sid,1);
+        
         $this->response($votes,200);
     }
 
@@ -252,6 +263,15 @@ class suggestion extends REST_Controller {
         } else {
             $this->response(false, 404);
         }
+    }
+    
+    public function credit_get(){
+        $sid = $this->get('sid');
+        $amount = $this->get('amount');
+        
+        $this->Suggestions_model->redeemCredits($sid,$amount);
+        
+        
     }
 
 

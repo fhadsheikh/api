@@ -48,6 +48,7 @@ class Suggestions_model extends CI_Model {
     {
         $this->db->select('suggestions.id,title,sid,name,status,submissiondate');
         $this->db->where('sid',$schoolID);
+        $this->db->where('status != 2');
         $this->db->from('suggestions');
         $this->db->join('schools','schools.id = suggestions.sid');
 
@@ -125,6 +126,7 @@ class Suggestions_model extends CI_Model {
 
     }
 
+
     public function getMessages($suggestionID)
     {
 //        $query = $this->db->get_where('sb_messages',array('suggestion_id'=>$suggestionID));
@@ -186,6 +188,17 @@ class Suggestions_model extends CI_Model {
         return $data;
 
 
+    }
+    
+        
+    public function updateSuggestion($id, $summary)
+    {
+        $data = array(
+            'summary'=>$summary
+        );
+        
+        $this->db->where('id',$id);
+        $this->db->update('suggestions',$data);
     }
 
 
